@@ -10,15 +10,21 @@ print $cgi->header;
 
 my $expresion = $cgi->param('expresion');
 
-# Verifica si la expresión contiene solo números y operadores permitidos
-if ($expresion =~ /^(\d+(\.\d+)?)[+\-*/]\d+(\.\d+)?$/) {
-    my $resultado = eval $expresion;
+if ($expresion) {
+    # Verifica si la expresión es segura usando expresiones regulares
+    if ($expresion =~ /^(\d+(\.\d+)?)[+\-*/]\d+(\.\d+)?$/) {
+        eval {
+            my $resultado = eval $expresion;
+            die "Error en la expresión: $@" if $@;
 
-    if (defined $resultado) {
-        print "<p>Resultado: $resultado</p>";
+            print "<p>Resultado: $resultado</p>";
+        };
+        if ($@) {
+            print "<p>Error en la expresión: $@</p>";
+        }
     } else {
-        print "<p>Error en la expresión.</p>";
+        print "<p>Expresión no válida.</p>";
     }
 } else {
-    print "<p>Expresión no válida.</p>";
+    print "<p>Ingresa una expresión.</p>";
 }
